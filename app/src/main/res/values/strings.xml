@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Настройка</string>
+    <string name="clear_settings">Очистить настройки</string>
+    <string name="app_name">Total Control Lite (beta)</string>
+    <string name="clear">Очистить</string>
+    <string name="delete_record">Удалить запись</string>
+    <string name="refresh">Обновить</string>
+    <string name="next">Далее</string>
+    <string name="clear_content">Очистить содержимое</string>
+
+    <string-array name="spinner_social_type">
+        <item>Вконтакте</item>
+        <item>Одноклассники</item>
+    </string-array>
+
+    <string-array name="spinner_game_type">
+        <item>Спарта</item>
+        <item>Война престолов</item>
+    </string-array>
+
+    <string name="tab_accouns">Аккаунты</string>
+    <string name="tab_report">Отчеты</string>
+    <string name="tab_army">Войска</string>
+    <string name="tab_other">Другое</string>
+</resources>
