@@ -25,7 +25,8 @@ public class FirstSettiningApp extends DialogFragment {
     private OnCallBackForResultDialog callback;
 
     public interface OnCallBackForResultDialog {
-        public void onAddFriendSubmit(String friendEmail);
+        public void isClickPositive(boolean check);
+        public void returnDataFromDialogAddAccout(String nickname, String login, String password);
     }
 
     @Override
@@ -81,16 +82,14 @@ public class FirstSettiningApp extends DialogFragment {
                         final String selected_game = spinner_game.getSelectedItem().toString();
                         final String selected_social = spinner_social.getSelectedItem().toString();
 
-                        callback.onAddFriendSubmit(
-                                "ID:" + selectedItemPositionSpinnerSocialType
-                                        + " Name: " + selected_social + " - "
-                                        + " ID:" + selectedItemPositionSpinnerGame
-                                        + " Name: " + selected_game);
+                        callback.isClickPositive(true);
+
                     }
                 })
                 .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        callback.isClickPositive(false);
                         Toast.makeText(getContext(), "Настройка приложения была отменена - повторите снова", Toast.LENGTH_LONG).show();
                     }
                 });
