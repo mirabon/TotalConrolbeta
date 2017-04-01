@@ -26,7 +26,7 @@ public class FirstSettiningApp extends DialogFragment {
 
     public interface OnCallBackForResultDialog {
         public void isClickPositive(boolean check);
-        public void returnDataFromDialogAddAccout(String nickname, String login, String password);
+        public void returnDataFromDialogAddAccount(String nickname, String login, String password);
     }
 
     @Override

@@ -19,7 +19,7 @@ import ru.rassvetmedia.totalconrolbeta.R;
 public class DialogAddAccount extends DialogFragment {
     private OnCallBackForResultDialog callback;
     public interface OnCallBackForResultDialog {
-        public void returnDataFromDialogAddAccout(String nickname, String login, String password);
+        public void returnDataFromDialogAddAccount(String nickname, String login, String password);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class DialogAddAccount extends DialogFragment {
                         String login = loginBox.getText().toString();
                         String password = passwordBox.getText().toString();
                         String nickname = nicknameBox.getText().toString();
-                        callback.returnDataFromDialogAddAccout(nickname, login, password);
+                        callback.returnDataFromDialogAddAccount(nickname, login, password);
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)

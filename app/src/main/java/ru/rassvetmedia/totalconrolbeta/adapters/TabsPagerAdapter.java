@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.ViewGroup;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
     public TabsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         this.context = context;
-        initFragments();
+        initFragments(context);
 
     }
 
@@ -41,7 +42,7 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
         return tabs.size();
     }
 
-    private void initFragments() {
+    private void initFragments(Context context) {
         this.tabs = new HashMap<>();
         tabs.put(0, AccountsFragment.getInstance(context));
         tabs.put(1, ReportFragment.getInstance(context));

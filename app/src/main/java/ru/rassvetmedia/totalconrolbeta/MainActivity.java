@@ -21,7 +21,6 @@ import ru.rassvetmedia.totalconrolbeta.ui.FirstSettiningApp;
 
 public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
-    private Context context;
     public ViewPager getViewPager() {
         return viewPager;
     }
@@ -43,15 +42,13 @@ public class MainActivity extends AppCompatActivity{
     private void initTabs() {
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         TabsPagerAdapter adapter = new TabsPagerAdapter(getApplicationContext(), getSupportFragmentManager());
-        viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
+        viewPager.setAdapter(adapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
         if (tabLayout != null) {
             tabLayout.setupWithViewPager(viewPager);
         }
-
-
     }
 
     /**

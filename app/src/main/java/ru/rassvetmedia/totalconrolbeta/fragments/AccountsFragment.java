@@ -1,23 +1,26 @@
 package ru.rassvetmedia.totalconrolbeta.fragments;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import ru.rassvetmedia.totalconrolbeta.R;
-import ru.rassvetmedia.totalconrolbeta.databinding.AccountsFragmentBinding;
 import ru.rassvetmedia.totalconrolbeta.db.DataBaseContract;
+import ru.rassvetmedia.totalconrolbeta.db.GetSQLiteOpenHelper;
 import ru.rassvetmedia.totalconrolbeta.db.impl.OperateAccountsDaoImpl;
 import ru.rassvetmedia.totalconrolbeta.pojo.Constans;
 import ru.rassvetmedia.totalconrolbeta.ui.DialogAddAccount;
@@ -28,22 +31,21 @@ import ru.rassvetmedia.totalconrolbeta.viewmodels.AndroidListAccountsViewModel;
  * Created by Vasilij on 19.03.2017.
  */
 
-public class AccountsFragment extends AbstractTabFragment implements View.OnClickListener, FirstSettiningApp.OnCallBackForResultDialog, DialogAddAccount.OnCallBackForResultDialog {
+public class AccountsFragment extends AbstractTabFragment implements LoaderManager.LoaderCallbacks<Cursor>, FirstSettiningApp.OnCallBackForResultDialog, DialogAddAccount.OnCallBackForResultDialog {
     private static final int LAYOUT = R.layout.accounts_fragment;
-
     private AndroidListAccountsViewModel infos;
     private String[] from = new String[]{DataBaseContract.AccountsEntry.KEY_NICKNAME};
     private int[] to = new int[]{R.id.login_text};
+
+    private SQLiteOpenHelper db;
     private FloatingActionButton fab;
     private SimpleCursorAdapter scAdapter;
-    private Spinner spinner_social, spinner_game;
-    private AccountsFragmentBinding accountsFragmentBinding;
+    private Loader<Cursor> cursorLoader;
 
     public AccountsFragment() {
     }
 
     public static AccountsFragment getInstance(Context context) {
-
         Bundle arg = new Bundle();
         AccountsFragment accountsFragment = new AccountsFragment();
         accountsFragment.setArguments(arg);
@@ -52,30 +54,58 @@ public class AccountsFragment extends AbstractTabFragment implements View.OnClic
         return accountsFragment;
     }
 
+    /**
+     * Called to do initial creation of a fragment.  This is called after
+     * {@link #onAttach(Activity)} and before
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * <p>
+     * <p>Note that this can be called while the fragment's activity is
+     * still in the process of being created.  As such, you can not rely
+     * on things like the activity's content view hierarchy being initialized
+     * at this point.  If you want to do work once the activity itself is
+     * created, see {@link #onActivityCreated(Bundle)}.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(Constans.LOG_TAG, "AccountsFragment onCreate");
+        if (this.context == getContext().getApplicationContext()){
+            Log.d(Constans.LOG_TAG, "AccountsFragment context is равно");
+        }
+        if (this.context == null) {
+            this.context = getContext().getApplicationContext();
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        accountsFragmentBinding = DataBindingUtil.inflate(inflater, LAYOUT, container, false);
-        view = accountsFragmentBinding.getRoot();
-//        infos = new AndroidListAccountsViewModel(context);
-//        accountsFragmentBinding.setInfos(infos);
-        ListView lv = (ListView) view.findViewById(R.id.listView);
-//        infos.setLv(lv).setContext(context);
-        scAdapter = new SimpleCursorAdapter(context, R.layout.list_item, null, from, to, 0);
-        lv.setAdapter(scAdapter);
-        ListView listView = (ListView) view.findViewById(R.id.listView);
+        final View rootView = inflater.inflate(LAYOUT, container, false);
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        db = GetSQLiteOpenHelper.getHelperInstance(this.context);
+        db.getWritableDatabase();
+
+        infos = new AndroidListAccountsViewModel(this.context);
+        ListView lv = (ListView) rootView.findViewById(R.id.listView);
+        infos
+                .setLv(lv)
+                .setContext(this.context);
+        scAdapter = new SimpleCursorAdapter(this.context, R.layout.list_item, null, from, to, 0);
+        lv.setAdapter(scAdapter);
+
+        fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View rootView) {
                 Log.d(Constans.LOG_TAG, "FloatingActionButton onClick");
                 openDialogFirstSettingsApp();
             }
-
-
         });
-        return view;
+
+        getLoaderManager().initLoader(0, null, this);
+        return rootView;
     }
 
     private void openDialogFirstSettingsApp() {
@@ -95,17 +125,40 @@ public class AccountsFragment extends AbstractTabFragment implements View.OnClic
     @Override
     public void onResume() {
         super.onResume();
-//        infos.registeredListenersOnLongClickItem();
-//        infos.registeredListenersOnCheckBoxClick();
+
+        Log.d(Constans.LOG_TAG, "onResume");
     }
 
+    /**
+     * Called when the Fragment is no longer resumed.  This is generally
+     * tied to {@link Activity#onPause() Activity.onPause} of the containing
+     * Activity's lifecycle.
+     */
     @Override
-    public void onClick(View view) {
-        Toast.makeText(getActivity(), "Hello World", Toast.LENGTH_LONG).show();
+    public void onPause() {
+        super.onPause();
+        Log.d(Constans.LOG_TAG, "onPause");
     }
 
-    public void setContext(Context mContext) {
-        this.context = mContext;
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored in to the view.
+     * This gives subclasses a chance to initialize themselves once
+     * they know their view hierarchy has been completely created.  The fragment's
+     * view hierarchy is not however attached to its parent at this point.
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     */
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        infos.registeredListenersOnLongClickItem();
+        infos.registeredListenersOnCheckBoxClick();
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     /**
@@ -121,18 +174,67 @@ public class AccountsFragment extends AbstractTabFragment implements View.OnClic
               Открываем диалоговое окно для ввода данных аккаунта
              */
             openDialogAddAccout();
-
         }
     }
 
     @Override
-    public void returnDataFromDialogAddAccout(String nickname, String login, String password) {
-            OperateAccountsDaoImpl o = new OperateAccountsDaoImpl();
-            long result = o.addAccountFromDialog(getActivity(), nickname, login, password);
-            if (result > 0) {
-                Toast.makeText(getActivity(), "Добавлено", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getActivity(), "Ошибка", Toast.LENGTH_LONG).show();
-            }
+    public void returnDataFromDialogAddAccount(String nickname, String login, String password) {
+        /*
+        Добавляем аккаунт на основании введенных данных в диалоговое окно класса DialogAddAccount
+         */
+        OperateAccountsDaoImpl o = new OperateAccountsDaoImpl();
+        long result = o.addAccountFromDialog(getActivity(), nickname, login, password);
+
+        if (result > 0) {
+            cursorLoader.onContentChanged();
+            Toast.makeText(getActivity(), "Добавлено", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getActivity(), "Ошибка", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Instantiate and return a new Loader for the given ID.
+     *
+     * @param id   The ID whose loader is to be created.
+     * @param args Any arguments supplied by the caller.
+     * @return Return a new Loader instance that is ready to start loading.
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        cursorLoader = new MyCursorLoader(getActivity());
+        return cursorLoader;
+    }
+
+    /**
+     * @param loader The Loader that has finished.
+     * @param data   The data generated by the Loader.
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        scAdapter.swapCursor(data);
+    }
+
+    /**
+     * @param loader The Loader that is being reset.
+     */
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        scAdapter.swapCursor(null);
+    }
+
+    static class MyCursorLoader extends CursorLoader {
+        OperateAccountsDaoImpl dbOperation;
+
+        public MyCursorLoader(Context context) {
+            super(context);
+            dbOperation = new OperateAccountsDaoImpl();
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            Cursor cursor = dbOperation.getAllAccounts(getContext());
+            return cursor;
+        }
     }
 }
