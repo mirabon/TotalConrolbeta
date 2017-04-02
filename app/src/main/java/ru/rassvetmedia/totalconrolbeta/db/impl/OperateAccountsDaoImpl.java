@@ -41,7 +41,20 @@ public class OperateAccountsDaoImpl implements OperateAccountsDao {
         SQLiteOpenHelper sqLiteOpenHelper = GetSQLiteOpenHelper.getHelperInstance(context);
         SQLiteDatabase db = sqLiteOpenHelper.getReadableDatabase();
         Cursor c = db.query(DataBaseContract.AccountsEntry.TABLE_NAME, null, null, null, null, null, null);
-        db.close();
         return c;
+    }
+
+    @Override
+    public long deleteAccountForId(Context context, long id) {
+        SQLiteOpenHelper sqLiteOpenHelper = GetSQLiteOpenHelper.getHelperInstance(context);
+        SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase();
+        long amount = db.delete(DataBaseContract.AccountsEntry.TABLE_NAME, DataBaseContract.AccountsEntry._ID + " = " + id, null);
+        db.close();
+        return amount;
+    }
+
+    @Override
+    public long addTestAccount(Context context) {
+        return 0;
     }
 }

@@ -10,4 +10,6 @@ import android.database.Cursor;
 public interface OperateAccountsDao {
     long addAccountFromDialog(Context context, String nickname, String login, String password);
     Cursor getAllAccounts(Context context);
+    long deleteAccountForId(Context context, long id);
+    long addTestAccount(Context context);
 }

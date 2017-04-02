@@ -12,6 +12,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import ru.rassvetmedia.totalconrolbeta.R;
+import ru.rassvetmedia.totalconrolbeta.db.dao.OperateAccountsDao;
+import ru.rassvetmedia.totalconrolbeta.db.impl.OperateAccountsDaoImpl;
 import ru.rassvetmedia.totalconrolbeta.fragments.AccountsFragment;
 import ru.rassvetmedia.totalconrolbeta.pojo.AndroidInfo;
 import ru.rassvetmedia.totalconrolbeta.pojo.Constans;
@@ -48,6 +50,7 @@ public class AndroidListAccountsViewModel {
                 public boolean onMenuItemClick(MenuItem item) {
                     AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                     int listPosition = info.position;
+                    long id = info.id;
                     switch (item.getItemId()) {
                         case 0:
                             add();
@@ -55,8 +58,10 @@ public class AndroidListAccountsViewModel {
                             return true;
 
                         case 1:
-                            remove(listPosition);
-                            Log.i(Constans.LOG_TAG, String.valueOf(listPosition));
+                            //remove(listPosition);
+                            OperateAccountsDao o = new OperateAccountsDaoImpl();
+                            long i = o.deleteAccountForId(context, id);
+                            Log.i(Constans.LOG_TAG, String.valueOf(i));
                             return true;
 
                         case 2:
@@ -71,9 +76,9 @@ public class AndroidListAccountsViewModel {
 
             private void initContextMenu(ContextMenu contextMenu) {
                 contextMenu.setHeaderTitle("Опции аккаунта");
-                contextMenu.add(0, 0, 0, "Добавить").setOnMenuItemClickListener(mMenuItemClickListener);
+                //contextMenu.add(0, 0, 0, "Добавить").setOnMenuItemClickListener(mMenuItemClickListener);
                 contextMenu.add(0, 1, 0, "Удалить").setOnMenuItemClickListener(mMenuItemClickListener);
-                contextMenu.add(0, 2, 0, "cancel action").setOnMenuItemClickListener(mMenuItemClickListener);
+                //contextMenu.add(0, 2, 0, "cancel action").setOnMenuItemClickListener(mMenuItemClickListener);
             }
         });
 
