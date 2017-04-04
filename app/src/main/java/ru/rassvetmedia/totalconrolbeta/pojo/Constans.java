@@ -6,6 +6,7 @@ package ru.rassvetmedia.totalconrolbeta.pojo;
 
 public class Constans {
     public static final String LOG_TAG = "tfa_log";
+    public static final String SETTINGS_APP_NAME = "settings";
     public int DISCONNECT = 0;//отключен
     public int ACTIVE = 1;//активный
     public int ERROR = 2;//ошибка

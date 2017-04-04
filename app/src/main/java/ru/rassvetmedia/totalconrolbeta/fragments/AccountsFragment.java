@@ -23,6 +23,8 @@ import ru.rassvetmedia.totalconrolbeta.R;
 import ru.rassvetmedia.totalconrolbeta.db.DataBaseContract;
 import ru.rassvetmedia.totalconrolbeta.db.GetSQLiteOpenHelper;
 import ru.rassvetmedia.totalconrolbeta.db.impl.OperateAccountsDaoImpl;
+import ru.rassvetmedia.totalconrolbeta.model.SharedPreferense;
+import ru.rassvetmedia.totalconrolbeta.model.WriteSettingApp;
 import ru.rassvetmedia.totalconrolbeta.pojo.Constans;
 import ru.rassvetmedia.totalconrolbeta.pojo.StatusAccounts;
 import ru.rassvetmedia.totalconrolbeta.ui.DialogAddAccount;
@@ -105,7 +107,7 @@ public class AccountsFragment extends AbstractTabFragment implements
 
         ListView lv = (ListView) rootView.findViewById(R.id.listView);
         scAdapter = new SimpleCursorAdapter(this.context, R.layout.list_item, null, from, to, 0);
-        scAdapter.setViewBinder(new YourViewBinder());
+        scAdapter.setViewBinder(new CustomViewBinder());
         lv.setAdapter(scAdapter);
 
         infos = new AndroidListAccountsViewModel(this.context);
@@ -113,12 +115,18 @@ public class AccountsFragment extends AbstractTabFragment implements
                 .setLv(lv)
                 .setTargetFragment(this);
 
-
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View rootView) {
-                Log.d(Constans.LOG_TAG, "FloatingActionButton onClick");
-                openDialogFirstSettingsApp();
+
+                SharedPreferense data = new SharedPreferense(Constans.SETTINGS_APP_NAME);
+                data.init(getActivity());
+
+                if (data.getAllPreferenses().size() > 1) {
+                    openDialogAddAccout();
+                } else {
+                    openDialogFirstSettingsApp();
+                }
             }
         });
 
@@ -153,10 +161,10 @@ public class AccountsFragment extends AbstractTabFragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         infos.registeredListenersOnLongClickItem();
-        //infos.registeredListenersOnCheckBoxClick();
+        infos.registeredListenersOnCheckBoxClick();
     }
 
-    public class YourViewBinder implements SimpleCursorAdapter.ViewBinder {
+    public class CustomViewBinder implements SimpleCursorAdapter.ViewBinder {
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 
             if (view.getId() == R.id.imageView1) {
@@ -184,9 +192,11 @@ public class AccountsFragment extends AbstractTabFragment implements
      * @param c
      */
     @Override
-    public void isClickPositiveButtonInDialogPreferences(boolean c) {
+    public void isClickPositiveButtonInDialogPreferences(boolean c, String social_type, String game_type) {
         Toast.makeText(getActivity(), Boolean.toString(c), Toast.LENGTH_LONG).show();
         if (c) {
+            WriteSettingApp writeSettingApp = new WriteSettingApp(context);
+            writeSettingApp.setData(social_type, game_type);
             /*
               Открываем диалоговое окно для ввода данных аккаунта
              */

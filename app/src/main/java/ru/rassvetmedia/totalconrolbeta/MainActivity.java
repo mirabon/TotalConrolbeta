@@ -4,27 +4,17 @@ package ru.rassvetmedia.totalconrolbeta;
  * Created by Vasilij on 19.03.2017.
  */
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.widget.Toast;
 
 import ru.rassvetmedia.totalconrolbeta.adapters.TabsPagerAdapter;
-import ru.rassvetmedia.totalconrolbeta.pojo.Constans;
-import ru.rassvetmedia.totalconrolbeta.ui.FirstSettiningApp;
 
 public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
-    public ViewPager getViewPager() {
-        return viewPager;
-    }
-
     private ViewPager viewPager;
 
     @Override
