@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import ru.rassvetmedia.totalconrolbeta.db.DataBaseContract;
 import ru.rassvetmedia.totalconrolbeta.db.GetSQLiteOpenHelper;
 import ru.rassvetmedia.totalconrolbeta.db.impl.OperateAccountsDaoImpl;
 import ru.rassvetmedia.totalconrolbeta.pojo.Constans;
+import ru.rassvetmedia.totalconrolbeta.pojo.StatusAccounts;
 import ru.rassvetmedia.totalconrolbeta.ui.DialogAddAccount;
 import ru.rassvetmedia.totalconrolbeta.ui.FirstSettiningApp;
 import ru.rassvetmedia.totalconrolbeta.viewmodels.AndroidListAccountsViewModel;
@@ -31,11 +33,23 @@ import ru.rassvetmedia.totalconrolbeta.viewmodels.AndroidListAccountsViewModel;
  * Created by Vasilij on 19.03.2017.
  */
 
-public class AccountsFragment extends AbstractTabFragment implements LoaderManager.LoaderCallbacks<Cursor>, FirstSettiningApp.OnCallBackForResultDialog, DialogAddAccount.OnCallBackForResultDialog {
+public class AccountsFragment extends AbstractTabFragment implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        FirstSettiningApp.OnCallBackForResultDialog,
+        DialogAddAccount.OnCallBackForResultDialog {
+
     private static final int LAYOUT = R.layout.accounts_fragment;
     private AndroidListAccountsViewModel infos;
-    private String[] from = new String[]{DataBaseContract.AccountsEntry.KEY_NICKNAME};
-    private int[] to = new int[]{R.id.login_text};
+
+    private String[] from = new String[]{
+            DataBaseContract.AccountsEntry.KEY_ACCOUNT_STATUS,
+            DataBaseContract.AccountsEntry.KEY_NICKNAME
+    };
+
+    private int[] to = new int[]{
+            R.id.imageView1,
+            R.id.login_text
+    };
 
     private SQLiteOpenHelper db;
     private FloatingActionButton fab;
@@ -72,7 +86,7 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(Constans.LOG_TAG, "AccountsFragment onCreate");
-        if (this.context == getContext().getApplicationContext()){
+        if (this.context == getContext().getApplicationContext()) {
             Log.d(Constans.LOG_TAG, "AccountsFragment context is равно");
         }
         if (this.context == null) {
@@ -87,14 +101,18 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
 
         db = GetSQLiteOpenHelper.getHelperInstance(this.context);
         db.getWritableDatabase();
+        cursorLoader = getLoaderManager().initLoader(0, null, this);
+
+        ListView lv = (ListView) rootView.findViewById(R.id.listView);
+        scAdapter = new SimpleCursorAdapter(this.context, R.layout.list_item, null, from, to, 0);
+        scAdapter.setViewBinder(new YourViewBinder());
+        lv.setAdapter(scAdapter);
 
         infos = new AndroidListAccountsViewModel(this.context);
-        ListView lv = (ListView) rootView.findViewById(R.id.listView);
         infos
                 .setLv(lv)
-                .setContext(this.context);
-        scAdapter = new SimpleCursorAdapter(this.context, R.layout.list_item, null, from, to, 0);
-        lv.setAdapter(scAdapter);
+                .setTargetFragment(this);
+
 
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +122,6 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
             }
         });
 
-        getLoaderManager().initLoader(0, null, this);
         return rootView;
     }
 
@@ -122,24 +139,6 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
         dAddAccout.show(fm, "first_setting_app");
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        Log.d(Constans.LOG_TAG, "onResume");
-    }
-
-    /**
-     * Called when the Fragment is no longer resumed.  This is generally
-     * tied to {@link Activity#onPause() Activity.onPause} of the containing
-     * Activity's lifecycle.
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(Constans.LOG_TAG, "onPause");
-    }
-
     /**
      * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
      * has returned, but before any saved state has been restored in to the view.
@@ -154,7 +153,25 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         infos.registeredListenersOnLongClickItem();
-        infos.registeredListenersOnCheckBoxClick();
+        //infos.registeredListenersOnCheckBoxClick();
+    }
+
+    public class YourViewBinder implements SimpleCursorAdapter.ViewBinder {
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+
+            if (view.getId() == R.id.imageView1) {
+                ImageView iv = (ImageView) view;
+                int value_status = cursor.getInt(columnIndex);
+                iv.setImageResource(new StatusAccounts().getRESOURCE(value_status));
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    public Loader<Cursor> getCursorLoader() {
+        return cursorLoader;
     }
 
     public void setContext(Context context) {
@@ -167,7 +184,7 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
      * @param c
      */
     @Override
-    public void isClickPositive(boolean c) {
+    public void isClickPositiveButtonInDialogPreferences(boolean c) {
         Toast.makeText(getActivity(), Boolean.toString(c), Toast.LENGTH_LONG).show();
         if (c) {
             /*
@@ -186,8 +203,8 @@ public class AccountsFragment extends AbstractTabFragment implements LoaderManag
         long result = o.addAccountFromDialog(getActivity(), nickname, login, password);
 
         if (result > 0) {
-            cursorLoader.onContentChanged();
             Toast.makeText(getActivity(), "Добавлено", Toast.LENGTH_LONG).show();
+            cursorLoader.onContentChanged();
         } else {
             Toast.makeText(getActivity(), "Ошибка", Toast.LENGTH_LONG).show();
         }

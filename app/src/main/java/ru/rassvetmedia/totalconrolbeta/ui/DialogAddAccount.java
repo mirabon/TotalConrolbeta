@@ -19,7 +19,7 @@ import ru.rassvetmedia.totalconrolbeta.R;
 public class DialogAddAccount extends DialogFragment {
     private OnCallBackForResultDialog callback;
     public interface OnCallBackForResultDialog {
-        public void returnDataFromDialogAddAccount(String nickname, String login, String password);
+        void returnDataFromDialogAddAccount(String nickname, String login, String password);
     }
 
     @Override

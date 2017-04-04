@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import ru.rassvetmedia.totalconrolbeta.R;
-import ru.rassvetmedia.totalconrolbeta.db.dao.OperateAccountsDao;
 import ru.rassvetmedia.totalconrolbeta.db.impl.OperateAccountsDaoImpl;
 import ru.rassvetmedia.totalconrolbeta.fragments.AccountsFragment;
 import ru.rassvetmedia.totalconrolbeta.pojo.AndroidInfo;
@@ -24,7 +23,9 @@ public class AndroidListAccountsViewModel {
     public ObservableArrayList<AndroidInfo> list = new ObservableArrayList<>();
     private int mTotalCount;
     private Context context;
+    private AccountsFragment fragment;
     private ListView lv;
+    private OperateAccountsDaoImpl operateAccountsDao = new OperateAccountsDaoImpl();
 
 
     public AndroidListAccountsViewModel(Context context) {
@@ -49,19 +50,21 @@ public class AndroidListAccountsViewModel {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+                    long i;
                     int listPosition = info.position;
                     long id = info.id;
                     switch (item.getItemId()) {
                         case 0:
-                            add();
-                            Log.i(Constans.LOG_TAG, String.valueOf(listPosition));
+                            i = operateAccountsDao.addTestAccount(context);
+                            Log.i(Constans.LOG_TAG, String.valueOf(i));
+                            fragment.getCursorLoader().onContentChanged();
                             return true;
 
                         case 1:
-                            //remove(listPosition);
-                            OperateAccountsDao o = new OperateAccountsDaoImpl();
-                            long i = o.deleteAccountForId(context, id);
+                            i = operateAccountsDao.deleteAccountForId(context, id);
                             Log.i(Constans.LOG_TAG, String.valueOf(i));
+                            fragment.getCursorLoader().onContentChanged();
                             return true;
 
                         case 2:
@@ -76,7 +79,7 @@ public class AndroidListAccountsViewModel {
 
             private void initContextMenu(ContextMenu contextMenu) {
                 contextMenu.setHeaderTitle("Опции аккаунта");
-                //contextMenu.add(0, 0, 0, "Добавить").setOnMenuItemClickListener(mMenuItemClickListener);
+                contextMenu.add(0, 0, 0, "Добавить").setOnMenuItemClickListener(mMenuItemClickListener);
                 contextMenu.add(0, 1, 0, "Удалить").setOnMenuItemClickListener(mMenuItemClickListener);
                 //contextMenu.add(0, 2, 0, "cancel action").setOnMenuItemClickListener(mMenuItemClickListener);
             }
@@ -87,10 +90,10 @@ public class AndroidListAccountsViewModel {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBox);
                 Log.i(Constans.LOG_TAG, String.valueOf(i));
-                if (checkBox.isChecked()){
+                if (checkBox.isChecked()) {
                     checkBox.setChecked(false);
                     list.get(i).checked = false;
-                } else{
+                } else {
                     checkBox.setChecked(true);
                     list.get(i).checked = true;
                 }
@@ -115,17 +118,16 @@ public class AndroidListAccountsViewModel {
         return true;
     }
 
-    public AndroidListAccountsViewModel setContext(Context mContext) {
-        this.context = mContext;
-        return this;
-    }
-
     public AndroidListAccountsViewModel setLv(ListView lv) {
         this.lv = lv;
         return this;
     }
 
-    //@android:drawable/btn_star_big_on
+    public AndroidListAccountsViewModel setTargetFragment(AccountsFragment fragment) {
+        this.fragment = fragment;
+        return this;
+    }
+
     public void add(View v) {
         list.add(new AndroidInfo(android.R.drawable.btn_star_big_on, "icon_" + mTotalCount++, false));
     }
