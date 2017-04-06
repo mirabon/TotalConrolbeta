@@ -122,10 +122,10 @@ public class AccountsFragment extends AbstractTabFragment implements
                 SharedPreferense data = new SharedPreferense(Constans.SETTINGS_APP_NAME);
                 data.init(getActivity());
 
-                if (data.getAllPreferenses().size() > 1) {
-                    openDialogAddAccout();
-                } else {
+                if (data.getAllPreferenses().size() < 1) {
                     openDialogFirstSettingsApp();
+                } else {
+                    openDialogAddAccout();
                 }
             }
         });
