@@ -4,6 +4,7 @@ package ru.rassvetmedia.totalconrolbeta;
  * Created by Vasilij on 19.03.2017.
  */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 import ru.rassvetmedia.totalconrolbeta.adapters.TabsPagerAdapter;
+import ru.rassvetmedia.totalconrolbeta.service.checkAccountAndLogin;
 
 public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         initToolBar();
         initTabs();
+        startService(new Intent(getBaseContext(), checkAccountAndLogin.class));
 
     }
 
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity{
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
         if (tabLayout != null) {
             tabLayout.setupWithViewPager(viewPager);
+
         }
     }
 
@@ -60,4 +64,9 @@ public class MainActivity extends AppCompatActivity{
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(getBaseContext(), checkAccountAndLogin.class));
+    }
 }

@@ -11,7 +11,6 @@ import java.util.Random;
 import ru.rassvetmedia.totalconrolbeta.db.DataBaseContract;
 import ru.rassvetmedia.totalconrolbeta.db.GetSQLiteOpenHelper;
 import ru.rassvetmedia.totalconrolbeta.db.dao.OperateAccountsDao;
-import ru.rassvetmedia.totalconrolbeta.pojo.StatusAccounts;
 
 import static java.sql.Types.NULL;
 
@@ -75,7 +74,17 @@ public class OperateAccountsDaoImpl implements OperateAccountsDao {
         return insert;
     }
 
-    public int getRandomAccountStatus(){
+    @Override
+    public boolean checkAccounts(Context context) {
+        int count = this.getAllAccounts(context).getCount();
+        if (count > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public int getRandomAccountStatus() {
         int min = 0;
         int max = 6;
 

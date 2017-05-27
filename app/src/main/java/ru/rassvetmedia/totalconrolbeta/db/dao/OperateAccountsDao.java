@@ -12,4 +12,5 @@ public interface OperateAccountsDao {
     Cursor getAllAccounts(Context context);
     long deleteAccountForId(Context context, long id);
     long addTestAccount(Context context);
+    boolean checkAccounts(Context context);
 }
